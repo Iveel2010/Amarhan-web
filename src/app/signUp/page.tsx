@@ -18,16 +18,18 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
 
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Phone } from "lucide-react";
 import Footer from "@/components/Footer"
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -60,44 +62,87 @@ import { Value } from "@radix-ui/react-select";
 const page = () => {
   const router = useRouter();
   const [value, setValue] = useState("")
-
+  const [one,setOne] = useState<boolean>(false)
+  const [two,setTwo] = useState<boolean>(false)
+  const [isCheck , setIsCheck] = useState<boolean>(false)
+const isOnClick = async() => { 
+if(value.length < 8){
+setOne(true)
+} 
+if(value.length === 8){
+  setOne(false)
+  if(isCheck === true){
+     const newBro = {phoneNumber: value}
+     setTwo(true)
+     const jsonData = await fetch(
+    `https://amarhan-server.onrender.com/signup`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newBro),
+    }
+  );
+}
+  }
+}
+ 
   return (
-<div >
-  <div>
-    
+
+two === true ? <div>hi</div> : <div >
+  <div> 
+  <header
+        className="bg-white shadow-md fixed w-full top-0 z-50"
+      >
+        <div className="container mx-auto px-5 py-3 flex items-center justify-between">
+          <h1 className="text-xl font-bold text-gray-800">User Gallery</h1>
+        </div>
+      </header>
   </div>
-  <div className="h-screen flex items-center justify-center">
-  <Card className="m-3">
-    <CardHeader>
-      <CardTitle>Таны утасы дугаар</CardTitle>
+  <div className="h-screen flex items-center justify-center flex-col">
+<div>
+<CardHeader>
+      <CardTitle className="text-gray-800 text-[50px]">Нэвтрэх</CardTitle>
       <CardDescription>Хамгийн амархан Amarhan.mn-д тавтай морил.</CardDescription>
     </CardHeader>
     <CardContent >  
-    <div className="space-y-2">
+    <div className="space-y-2 flex items-center gap-2">
+    <Select >
+      <SelectTrigger className="w-[180px] h-12">
+        <SelectValue placeholder="Mongolia +976" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>Country</SelectLabel>
+          <SelectItem value="Mongolia">Mongolia +976</SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
       <InputOTP
         maxLength={8}
         value={value}
         onChange={(value) => setValue(value)}
       >
-        <InputOTPGroup>
-          <InputOTPSlot className="h-14 text-[20px]" index={0} />
-          <InputOTPSlot className="h-14 text-[20px]" index={1} />
-          <InputOTPSlot className="h-14 text-[20px]" index={2} />
-          <InputOTPSlot className="h-14 text-[20px]" index={3} />
-          <InputOTPSlot className="h-14 text-[20px]" index={4} />
-          <InputOTPSlot className="h-14 text-[20px]" index={5} />
-          <InputOTPSlot className="h-14 text-[20px]" index={6} />
-          <InputOTPSlot className="h-14 text-[20px]" index={7} />
+        <InputOTPGroup className="mb-2">
+          <InputOTPSlot className="h-12 text-[20px] w-12" index={0} />
+          <InputOTPSlot className="h-12 text-[20px] w-12" index={1} />
+          <InputOTPSlot className="h-12 text-[20px] w-12" index={2} />
+          <InputOTPSlot className="h-12 text-[20px] w-12" index={3} />
+          <InputOTPSlot className="h-12 text-[20px] w-12" index={4} />
+          <InputOTPSlot className="h-12 text-[20px] w-12" index={5} />
+          <InputOTPSlot className="h-12 text-[20px] w-12" index={6} />
+          <InputOTPSlot className="h-12 text-[20px] w-12" index={7} />
         </InputOTPGroup>
       </InputOTP>
-
     </div>
+    <div>{one == true ? "Дугаар хоосон байна эсвэл ашиглалтанд байхгүй дугаар": null}</div>
     <div className="items-top flex space-x-2 pt-5">
-      <Checkbox id="terms1" />
+      <Checkbox id="terms1" onCheckedChange={isCheck === true? () => setIsCheck(false): () => setIsCheck(true)}/>
       <div className="grid gap-1.5 leading-none">
         <label
           htmlFor="terms1"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-800"
         >
        Би Amarhan.mn сайтын үйлчилгээний нөхцөл
         </label>
@@ -108,14 +153,14 @@ const page = () => {
     </div>
     </CardContent>
       <CardFooter className="flex justify-between">
-        <Button className="w-full py-1">Deploy</Button>
+        <Button className={isCheck === true? "w-full py-1 bg-red-500 hover:bg-red-400" : "w-full py-1 bg-gray-500 hover:bg-gray-500"} onClick={() => isOnClick()}>Deploy</Button>
       </CardFooter>
-    </Card>
+</div>
   </div>
   <div>
-    <Footer/>
   </div>
 </div>
+
 )
 
 };
