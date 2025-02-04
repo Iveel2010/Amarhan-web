@@ -24,8 +24,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-
-import { format } from "date-fns";
+import { jwtDecode } from "jwt-decode";
+import { format, set } from "date-fns";
 import { CalendarIcon, Phone } from "lucide-react";
 import Footer from "@/components/Footer"
 import { cn } from "@/lib/utils";
@@ -62,9 +62,24 @@ import { Value } from "@radix-ui/react-select";
 const page = () => {
   const router = useRouter();
   const [value, setValue] = useState("")
+  const [value2, setValue2] = useState("")
   const [one,setOne] = useState<boolean>(false)
   const [two,setTwo] = useState<boolean>(false)
+  const [three,setThree] = useState<boolean>(false)
+  const [four, setFour]=useState<boolean>(false)
+  const [isZipTrue , setIsZipTrue] = useState<boolean>(false)
+  const [blinkToken , setBlinkToken] = useState<string>("")
   const [isCheck , setIsCheck] = useState<boolean>(false)
+  const [isCodeTrue , setIsCodeTrue] = useState<boolean>(true)
+const value22 = (value2) => {
+  if(value2.length === 6){
+  setFour(true)
+  }
+  if(value2.length < 6){
+    setFour(false)
+    }
+  setValue2(value2)
+}
 const isOnClick = async() => { 
 if(value.length < 8){
 setOne(true)
@@ -72,8 +87,8 @@ setOne(true)
 if(value.length === 8){
   setOne(false)
   if(isCheck === true){
-     const newBro = {phoneNumber: value}
      setTwo(true)
+     const newBro = {phoneNumber: value}
      const jsonData = await fetch(
     `https://amarhan-server.onrender.com/signup`,
     {
@@ -84,13 +99,44 @@ if(value.length === 8){
       body: JSON.stringify(newBro),
     }
   );
+  const res = await jsonData.json()
+  setBlinkToken(res)
+  console.log(res)
 }
   }
 }
- 
+const isOnClick2 = async() => { 
+if(value2.length < 6){
+  setThree(true)
+}
+if(value2.length === 6){
+  const decoded: { zipCode: string } = jwtDecode(blinkToken|| "");
+  const zipCode = decoded.zipCode;
+  if(zipCode === value2) {
+    setThree(false) 
+     const newBro = {phoneNumber: value}
+     const jsonData = await fetch(
+    `https://amarhan-server.onrender.com/signup`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newBro),
+    }
+  );
+  const res = await jsonData.json()
+  localStorage.setItem("token",blinkToken)
+  setIsZipTrue(true)
+  }
+  if(zipCode !== value2){
+    setThree(true)
+  }
+}
+}
   return (
 
-two === true ? <div>hi</div> : <div >
+<div>
   <div> 
   <header
         className="bg-white shadow-md fixed w-full top-0 z-50"
@@ -100,63 +146,97 @@ two === true ? <div>hi</div> : <div >
         </div>
       </header>
   </div>
-  <div className="h-screen flex items-center justify-center flex-col">
-<div>
-<CardHeader>
-      <CardTitle className="text-gray-800 text-[50px]">Нэвтрэх</CardTitle>
-      <CardDescription>Хамгийн амархан Amarhan.mn-д тавтай морил.</CardDescription>
-    </CardHeader>
-    <CardContent >  
-    <div className="space-y-2 flex items-center gap-2">
-    <Select >
-      <SelectTrigger className="w-[180px] h-12">
-        <SelectValue placeholder="Mongolia +976" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectLabel>Country</SelectLabel>
-          <SelectItem value="Mongolia">Mongolia +976</SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-      <InputOTP
-        maxLength={8}
-        value={value}
-        onChange={(value) => setValue(value)}
-      >
-        <InputOTPGroup className="mb-2">
-          <InputOTPSlot className="h-12 text-[20px] w-12" index={0} />
-          <InputOTPSlot className="h-12 text-[20px] w-12" index={1} />
-          <InputOTPSlot className="h-12 text-[20px] w-12" index={2} />
-          <InputOTPSlot className="h-12 text-[20px] w-12" index={3} />
-          <InputOTPSlot className="h-12 text-[20px] w-12" index={4} />
-          <InputOTPSlot className="h-12 text-[20px] w-12" index={5} />
-          <InputOTPSlot className="h-12 text-[20px] w-12" index={6} />
-          <InputOTPSlot className="h-12 text-[20px] w-12" index={7} />
-        </InputOTPGroup>
-      </InputOTP>
-    </div>
-    <div>{one == true ? "Дугаар хоосон байна эсвэл ашиглалтанд байхгүй дугаар": null}</div>
-    <div className="items-top flex space-x-2 pt-5">
-      <Checkbox id="terms1" onCheckedChange={isCheck === true? () => setIsCheck(false): () => setIsCheck(true)}/>
-      <div className="grid gap-1.5 leading-none">
-        <label
-          htmlFor="terms1"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-800"
+{
+  two === true ?   <div className="h-screen flex items-center justify-center flex-col">
+  <div>
+  <CardHeader>
+        <CardTitle className="text-gray-800 text-[50px]">Нэвтрэх</CardTitle>
+        <CardDescription>Таны утас руу мессеж илгээгдлээ.</CardDescription>
+      </CardHeader>
+      <CardContent >  
+        <div className="text-gray-800">Код оруулна уу</div>
+      <div className="space-y-2 flex items-center gap-2">
+        <InputOTP
+          maxLength={6}
+          value={value2}
+          onChange={(value2) => value22(value2)}
         >
-       Би Amarhan.mn сайтын үйлчилгээний нөхцөл
-        </label>
-        <p className="text-sm text-muted-foreground">
-       зар нийтлэх журмыг хүлээн зөвшөөрч, мөн өөрийгөө 18 нас хүрсэн болохыг баталж байна.
-        </p>
+          <InputOTPGroup className="mb-2">
+            <InputOTPSlot className="h-12 text-[20px] w-12" index={0} />
+            <InputOTPSlot className="h-12 text-[20px] w-12" index={1} />
+            <InputOTPSlot className="h-12 text-[20px] w-12" index={2} />
+            <InputOTPSlot className="h-12 text-[20px] w-12" index={3} />
+            <InputOTPSlot className="h-12 text-[20px] w-12" index={4} />
+            <InputOTPSlot className="h-12 text-[20px] w-12" index={5} />
+          </InputOTPGroup>
+        </InputOTP>
       </div>
-    </div>
-    </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button className={isCheck === true? "w-full py-1 bg-red-500 hover:bg-red-400" : "w-full py-1 bg-gray-500 hover:bg-gray-500"} onClick={() => isOnClick()}>Deploy</Button>
-      </CardFooter>
-</div>
+      <div>{three == true ? "Koд хоосон байна эсвэл буруу байна": null}</div>
+      </CardContent>
+        <CardFooter className="flex justify-between">
+          <Button className={ four === true? "w-full py-1 bg-red-500 hover:bg-red-400" : "w-full py-1 bg-gray-500 hover:bg-gray-500"} onClick={() => isOnClick2()}>Нэвтрэх</Button>
+        </CardFooter>
   </div>
+    </div>:  
+  <div className="h-screen flex items-center justify-center flex-col">
+  <div>
+  <CardHeader>
+        <CardTitle className="text-gray-800 text-[50px]">Нэвтрэх</CardTitle>
+        <CardDescription>Хамгийн амархан Amarhan.mn-д тавтай морил.</CardDescription>
+      </CardHeader>
+      <CardContent >  
+        <div className="text-gray-800">Таны утасны дугаар</div>
+      <div className="space-y-2 flex items-center gap-2">
+      <Select >
+        <SelectTrigger className="w-[180px] h-12">
+          <SelectValue placeholder="Mongolia +976" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Country</SelectLabel>
+            <SelectItem value="Mongolia">Mongolia +976</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+        <InputOTP
+          maxLength={8}
+          value={value}
+          onChange={(value) => setValue(value)}
+        >
+          <InputOTPGroup className="mb-2">
+            <InputOTPSlot className="h-12 text-[20px] w-12" index={0} />
+            <InputOTPSlot className="h-12 text-[20px] w-12" index={1} />
+            <InputOTPSlot className="h-12 text-[20px] w-12" index={2} />
+            <InputOTPSlot className="h-12 text-[20px] w-12" index={3} />
+            <InputOTPSlot className="h-12 text-[20px] w-12" index={4} />
+            <InputOTPSlot className="h-12 text-[20px] w-12" index={5} />
+            <InputOTPSlot className="h-12 text-[20px] w-12" index={6} />
+            <InputOTPSlot className="h-12 text-[20px] w-12" index={7} />
+          </InputOTPGroup>
+        </InputOTP>
+      </div>
+      <div>{one == true ? "Дугаар хоосон байна эсвэл ашиглалтанд байхгүй дугаар": null}</div>
+      <div className="items-top flex space-x-2 pt-5">
+        <Checkbox id="terms1" onCheckedChange={isCheck === true? () => setIsCheck(false): () => setIsCheck(true)}/>
+        <div className="grid gap-1.5 leading-none">
+          <label
+            htmlFor="terms1"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-800"
+          >
+         Би Amarhan.mn сайтын үйлчилгээний нөхцөл
+          </label>
+          <p className="text-sm text-muted-foreground">
+         зар нийтлэх журмыг хүлээн зөвшөөрч, мөн өөрийгөө 18 нас хүрсэн болохыг баталж байна.
+          </p>
+        </div>
+      </div>
+      </CardContent>
+        <CardFooter className="flex justify-between">
+          <Button className={isCheck === true? "w-full py-1 bg-red-500 hover:bg-red-400" : "w-full py-1 bg-gray-500 hover:bg-gray-500"} onClick={() => isOnClick()}>Koд илгээх</Button>
+        </CardFooter>
+  </div>
+    </div>
+}
   <div>
   </div>
 </div>
@@ -164,4 +244,5 @@ two === true ? <div>hi</div> : <div >
 )
 
 };
+
 export default page;

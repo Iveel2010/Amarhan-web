@@ -40,7 +40,9 @@ import {
           className={`w-full flex items-center p-2 bottom-0 fixed justify-around ${
             isDarkMode ? "bg-black" : "bg-white"
           }`}
+          
         >
+     
 <div>
     
 </div>
