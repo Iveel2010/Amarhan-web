@@ -71,7 +71,7 @@ const page = () => {
   const [blinkToken , setBlinkToken] = useState<string>("")
   const [isCheck , setIsCheck] = useState<boolean>(false)
   const [isCodeTrue , setIsCodeTrue] = useState<boolean>(true)
-const value22 = (value2) => {
+const value22 = ({value2}:{value2: string}) => {
   if(value2.length === 6){
   setFour(true)
   }
@@ -159,7 +159,7 @@ if(value2.length === 6){
         <InputOTP
           maxLength={6}
           value={value2}
-          onChange={(value2) => value22(value2)}
+          onChange={(value2) => value22({value2} )}
         >
           <InputOTPGroup className="mb-2">
             <InputOTPSlot className="h-12 text-[20px] w-12" index={0} />
